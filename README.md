@@ -19,20 +19,55 @@ Code is super easy in markdown, which you can easily do inline `(require net/url
 (require net/url)
 ```
 
-### My Library: (library name here)
-Write what you did!
-Remember that this report must include:
- 
-* a narrative of what you did
-* the code that you wrote
-* output from your code demonstrating what it produced
-* any diagrams or figures explaining your work 
- 
-The narrative itself should be no longer than 350 words. Yes, you can add more files and link or refer to them. This is github, handling files is awesome and easy!
+### My Library: (DB: Database Connectivity)
+This library provides database interface for functional programmers.
+The Various database it supports are postgreSQL,
+MySQL
+Oracle
+SQL Server,
+SQLite Version 3.
+This code is important for using database connectivity "(require db)"
 
-Ask questions publicly in the Piazza group.
+To connect to a database of postgresql, the following code is used
+(define pgc
+    (postgresql-connect #:user user
+                        #:database db
+                        #:password password))
+where user is user name, db is the name of the database to connect to, password is the password. We need these values to connect to a database whether it is postgresql, mysql, oracle, etc.
 
-### How to Do and Submit this assignment
+To execute a query we use query-exec procedure 
+In the query-exec we can pass in any database query such as insert, delete, update, etc.
+(query-exec pgc
+   "create temporary table the_numbers (n integer, d varchar(20))")
+   which contains the sql statement in a string.
+   
+Prepared Statements can be executed multiple times with different parameter values.
+   For instance:
+   (define get-less-than-pst
+    (prepare pgc "select n from the_numbers where n < $1"))
+      > (query-list pgc get-less-than-pst 1)
+       '(0)
+      > (query-list pgc (bind-prepared-statement get-less-than-pst '(2)))
+      '(0 1)
+      The selected value in here is depended on the argument that is passed to it.
+
+To execute a SQL query, which must produce rows, and returns the list of rows (as vectors) from the query.
+ We can use query-rows which takes a connection object like we created pgc in the first point, then takes an sql statement,   it can be any sql query and the third is the argument.
+ (query-rows	 	connection	 	 	 	 
+ 	 	stmt	 	 	 	 
+ 	 	arg ...	 	 	 	 
+ 	 [	#:group groupings	 	 	 	 
+ 	 	#:group-mode group-mode])	
+ 	 	
+To commit a transaction:
+ 	 	In various web application we need to commit, to finish like online banking.
+ 	 	In scheme we use:
+ 	 	(commit-transaction c) → void?
+     c : connection?
+    If the transaction is valid, it commits otherwise  it raises an exception.
+
+Overall after seeing this library, I came to know how to connect to databases using scheme. It is kind of important because, the whole web development requires. So I learnt a lot out of the research.
+
 
 1. To start, [**fork** this repository][forking].
 1. Modify the README.md file and [**commit**][ref-commit] changes to complete your solution.
